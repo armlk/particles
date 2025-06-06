@@ -13,14 +13,15 @@ function love.load()
 	SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
 	love.window.setMode(SCREEN_WIDTH, SCREEN_HEIGHT)
 	RADIUS = 8
-	SIZE = 20
-	GAP = 3
-	G = 1e5
+	SIZE = 8
+	GAP = 10
+	G = 1e1
+	DAMPENING = 0.9999
 	pos, vel, acc = {}, {}, {}
 	for i = 1, SIZE do
 		for j = 1, SIZE do
 			pos[(i - 1) * SIZE + j] = { x = 10 + i * RADIUS * GAP, y = 10 + j * RADIUS * GAP }
-			vel[(i - 1) * SIZE + j] = { x = math.random(-100, 100), y = math.random(-100, 100) }
+			vel[(i - 1) * SIZE + j] = { x = math.random(-30, 30), y = math.random(-30, 30) }
 			acc[(i - 1) * SIZE + j] = { x = 0, y = 0 }
 		end
 	end
@@ -29,8 +30,8 @@ end
 function love.update(dt)
 	for i = 1, #pos do
 		vel[i] = {
-			x = (vel[i].x * 0.99 or 0) + (acc[i].x or 0) * dt,
-			y = (vel[i].y * 0.99 or 0) + (acc[i].y or 0) * dt,
+			x = ((vel[i].x * DAMPENING) or 0) + (acc[i].x or 0) * dt,
+			y = ((vel[i].y * DAMPENING) or 0) + (acc[i].y or 0) * dt,
 		}
 		pos[i] = { x = (pos[i].x or 0) + (vel[i].x or 0) * dt, y = (pos[i].y or 0) + (vel[i].y or 0) * dt }
 
@@ -68,8 +69,8 @@ function love.update(dt)
 				-- 	y = pos[j].y - offset * math.sin(theta),
 				-- }
 
-				-- vel[i] = { x = -vel[i].x, y = -vel[i].y }
-				-- vel[j] = { x = -vel[j].x, y = -vel[j].y }
+				vel[i] = { x = -vel[i].x * math.cos(theta), y = vel[i].y * math.sin(theta) }
+				vel[j] = { x = vel[j].x * math.cos(theta), y = -vel[j].y * math.sin(theta) }
 
 				-- acc[i] = { x = -acc[i].x, y = -acc[i].y }
 				-- acc[j] = { x = -acc[j].x, y = -acc[j].y }
@@ -97,7 +98,7 @@ function love.draw()
 		-- love.graphics.setColor(0, 0, 1)
 		-- love.graphics.line(pos[i].x, pos[i].y, pos[i].x + vel[i].x, pos[i].y + vel[i].y)
 		--
-		-- love.graphics.setColor(0, 1, 0)
-		-- love.graphics.line(pos[i].x, pos[i].y, pos[i].x + acc[i].x, pos[i].y + acc[i].y)
+		love.graphics.setColor(0, 1, 0)
+		love.graphics.line(pos[i].x, pos[i].y, pos[i].x + acc[i].x, pos[i].y + acc[i].y)
 	end
 end
